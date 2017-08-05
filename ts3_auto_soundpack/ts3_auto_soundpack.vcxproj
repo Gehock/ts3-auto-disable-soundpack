@@ -122,11 +122,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;TS3_AUTO_SOUNDPACK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,6 +138,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ts3_auto_soundpack.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\plugin_definitions.h" />
+    <ClInclude Include="..\include\teamlog\logtypes.h" />
+    <ClInclude Include="..\include\teamspeak\clientlib_publicdefinitions.h" />
+    <ClInclude Include="..\include\teamspeak\public_definitions.h" />
+    <ClInclude Include="..\include\teamspeak\public_errors.h" />
+    <ClInclude Include="..\include\teamspeak\public_errors_rare.h" />
+    <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
+    <ClInclude Include="..\include\ts3_functions.h" />
+    <ClInclude Include="plugin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

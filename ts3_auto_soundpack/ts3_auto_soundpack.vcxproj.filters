@@ -13,10 +13,45 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\teamlog">
+      <UniqueIdentifier>{01ac2bfc-00e9-45ff-8a3c-6e64f607570d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\teamspeak">
+      <UniqueIdentifier>{9e309817-258a-4930-9d6c-9efde920b144}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ts3_auto_soundpack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\plugin_definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ts3_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamlog\logtypes.h">
+      <Filter>Header Files\teamlog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamspeak\clientlib_publicdefinitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamspeak\public_definitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamspeak\public_errors.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamspeak\public_errors_rare.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\teamspeak\public_rare_definitions.h">
+      <Filter>Header Files\teamspeak</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
