@@ -1,6 +1,7 @@
 #ifdef _WIN32
-#pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
-#include <Windows.h>
+#define WINVER 0x0500
+//#pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
+#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -31,8 +32,6 @@ static struct TS3Functions ts3Functions;
 //#define SERVERINFO_BUFSIZE 256
 //#define CHANNELINFO_BUFSIZE 512
 //#define RETURNCODE_BUFSIZE 128
-
-static char* pluginID = NULL;
 
 #ifdef _WIN32
 /* Helper function to convert wchar_T to Utf-8 encoded strings on Windows */
@@ -69,7 +68,7 @@ const char* ts3plugin_name() {
 
 /* Plugin version */
 const char* ts3plugin_version() {
-	return "0.1";
+	return "0.3.3";
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -101,7 +100,7 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
 int ts3plugin_init() {
 
 	/* Your plugin init code here */
-	printf("PLUGIN: init auto soundpack\n");
+	printf_s("PLUGIN: init auto soundpack\n");
 
 	return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 			   /* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -112,7 +111,7 @@ int ts3plugin_init() {
 /* Custom code called right before the plugin is unloaded */
 void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
-	printf("PLUGIN: shutdown auto soundpack\n");
+	printf_s("PLUGIN: shutdown auto soundpack\n");
 
 	/*
 	* Note:
@@ -120,11 +119,6 @@ void ts3plugin_shutdown() {
 	* TeamSpeak client will most likely crash (DLL removed but dialog from DLL code still open).
 	*/
 
-	/* Free pluginID if we registered it */
-	if (pluginID) {
-		free(pluginID);
-		pluginID = NULL;
-	}
 }
 
 /*
@@ -138,23 +132,69 @@ int ts3plugin_requestAutoload() {
 
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-	ts3Functions.logMessage("MoveEvent", LogLevel_INFO, "Plugin", serverConnectionHandlerID);
-	char msg[1024];
-	//char *chFrom;
 	char *chTo;
-	//if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, oldChannelID, CHANNEL_NAME, &chFrom) != ERROR_ok) {
-	//	printf("Error getting channel name move\n");
-	//	return;
-	//}
+	char *chFrom;
 	if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, newChannelID, CHANNEL_NAME, &chTo) != ERROR_ok) {
-		printf("Error getting channel name move\n");
+		printf_s("Error getting channel name move\n");
 		return;
 	}
-	printf_s("move: Moved to channel %s", chTo);
-	if (strcmp(chTo, "TaskForceRadio" == 0))
-	{
-		printf_s("Moved to Task Force");
+	if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, oldChannelID, CHANNEL_NAME, &chFrom) != ERROR_ok) {
+		printf_s("Error getting channel name move\n");
+		return;
 	}
-	//ts3Functions.freeMemory(chFrom);
+	if (strcmp(chTo, "TaskForceRadio") == 0) {
+		printf_s("Moved to Task Force\n");
+		printf_s("Moved, pressed\n");
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0;
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
+
+		ip.ki.wVk = VK_CONTROL;
+		ip.ki.dwFlags = 0; // 0 for key press
+		SendInput(1, &ip, sizeof(INPUT));
+
+		ip.ki.wVk = VK_F8;
+		ip.ki.dwFlags = 0; // 0 for key press
+		SendInput(1, &ip, sizeof(INPUT));
+
+		// Release the "V" key
+		ip.ki.wVk = VK_F8;
+		ip.ki.dwFlags = KEYEVENTF_KEYUP;
+		SendInput(1, &ip, sizeof(INPUT));
+
+		// Release the "Ctrl" key
+		ip.ki.wVk = VK_CONTROL;
+		ip.ki.dwFlags = KEYEVENTF_KEYUP;
+		SendInput(1, &ip, sizeof(INPUT));
+	} else if (strcmp(chFrom, "TaskForceRadio") == 0) {
+		printf_s("Moved from Task Force\n");
+		printf_s("Moved, pressed\n");
+		INPUT ip;
+		ip.type = INPUT_KEYBOARD;
+		ip.ki.wScan = 0;
+		ip.ki.time = 0;
+		ip.ki.dwExtraInfo = 0;
+
+		ip.ki.wVk = VK_CONTROL;
+		ip.ki.dwFlags = 0; // 0 for key press
+		SendInput(1, &ip, sizeof(INPUT));
+
+		ip.ki.wVk = VK_F9;
+		ip.ki.dwFlags = 0; // 0 for key press
+		SendInput(1, &ip, sizeof(INPUT));
+
+		// Release the "V" key
+		ip.ki.wVk = VK_F9;
+		ip.ki.dwFlags = KEYEVENTF_KEYUP;
+		SendInput(1, &ip, sizeof(INPUT));
+
+		// Release the "Ctrl" key
+		ip.ki.wVk = VK_CONTROL;
+		ip.ki.dwFlags = KEYEVENTF_KEYUP;
+		SendInput(1, &ip, sizeof(INPUT));
+	}
+
 	ts3Functions.freeMemory(chTo);
 }

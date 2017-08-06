@@ -21,11 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ts3_auto_soundpack.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -53,5 +48,10 @@
     <ClInclude Include="..\include\teamspeak\public_rare_definitions.h">
       <Filter>Header Files\teamspeak</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ts3_auto_soundpack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
