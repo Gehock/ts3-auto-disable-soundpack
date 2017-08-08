@@ -1,3 +1,5 @@
+#define PLUGIN_VERSION "0.4.0"
+
 #ifdef _WIN32
 #define WINVER 0x0500
 //#pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
@@ -68,7 +70,7 @@ const char* ts3plugin_name() {
 
 /* Plugin version */
 const char* ts3plugin_version() {
-	return "0.3.3";
+	return PLUGIN_VERSION;
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -98,9 +100,17 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
 * If the function returns 1 on failure, the plugin will be unloaded again.
 */
 int ts3plugin_init() {
-
+	//#define CONFIG_FILE "now_playing_plugin.ini"
 	/* Your plugin init code here */
-	printf_s("PLUGIN: init auto soundpack\n");
+	//printf_s("PLUGIN: init auto soundpack\n");
+	//char chFilePath[500];
+	//char chConfigPath[450];
+	//int updatedFile;
+
+	/*ts3Functions.getConfigPath(chConfigPath, sizeof(chConfigPath));
+	printf("TEST: Loading/Initilizing Settings...\n\tchConfigPath = %s.\n", chConfigPath);
+	snprintf(chFilePath, 500, "%s%s", chConfigPath, CONFIG_FILE);
+	printf("\tchFilePath = %s.\n", chFilePath);*/
 
 	return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 			   /* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -111,7 +121,7 @@ int ts3plugin_init() {
 /* Custom code called right before the plugin is unloaded */
 void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
-	printf_s("PLUGIN: shutdown auto soundpack\n");
+	//printf_s("PLUGIN: shutdown auto soundpack\n");
 
 	/*
 	* Note:
@@ -127,24 +137,43 @@ void ts3plugin_shutdown() {
 * This function is optional. If missing, no autoload is assumed.
 */
 int ts3plugin_requestAutoload() {
-	return 1;  /* 1 = request autoloaded, 0 = do not request autoload */
+	return 0;  /* 1 = request autoloaded, 0 = do not request autoload */
 }
 
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying client ID", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+		return;
+	}
+
 	char *chTo;
-	char *chFrom;
 	if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, newChannelID, CHANNEL_NAME, &chTo) != ERROR_ok) {
-		printf_s("Error getting channel name move\n");
+		ts3Functions.logMessage("Error getting channel name", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
 		return;
 	}
+	char *chFrom;
 	if (ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, oldChannelID, CHANNEL_NAME, &chFrom) != ERROR_ok) {
-		printf_s("Error getting channel name move\n");
+		ts3Functions.logMessage("Error getting channel name", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
 		return;
 	}
-	if (strcmp(chTo, "TaskForceRadio") == 0) {
-		printf_s("Moved to Task Force\n");
-		printf_s("Moved, pressed\n");
+
+	/** Default hotkeys:
+	 *		Ctrl+F8: Sounds off
+	 *		Ctrl+F9: Sounds on
+	 */
+
+	if (clientID == myID) {
+		WORD key;
+		if (strcmp(chTo, "TaskForceRadio") == 0) {
+			printf_s("Moved to Task Force\n");
+			key = VK_F8;
+		}
+		else if (strcmp(chFrom, "TaskForceRadio") == 0) {
+			printf_s("Moved from Task Force\n");
+			key = VK_F9;
+		}
 		INPUT ip;
 		ip.type = INPUT_KEYBOARD;
 		ip.ki.wScan = 0;
@@ -155,42 +184,14 @@ void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientI
 		ip.ki.dwFlags = 0; // 0 for key press
 		SendInput(1, &ip, sizeof(INPUT));
 
-		ip.ki.wVk = VK_F8;
+		ip.ki.wVk = key;
 		ip.ki.dwFlags = 0; // 0 for key press
 		SendInput(1, &ip, sizeof(INPUT));
 
-		// Release the "V" key
-		ip.ki.wVk = VK_F8;
+		ip.ki.wVk = key;
 		ip.ki.dwFlags = KEYEVENTF_KEYUP;
 		SendInput(1, &ip, sizeof(INPUT));
 
-		// Release the "Ctrl" key
-		ip.ki.wVk = VK_CONTROL;
-		ip.ki.dwFlags = KEYEVENTF_KEYUP;
-		SendInput(1, &ip, sizeof(INPUT));
-	} else if (strcmp(chFrom, "TaskForceRadio") == 0) {
-		printf_s("Moved from Task Force\n");
-		printf_s("Moved, pressed\n");
-		INPUT ip;
-		ip.type = INPUT_KEYBOARD;
-		ip.ki.wScan = 0;
-		ip.ki.time = 0;
-		ip.ki.dwExtraInfo = 0;
-
-		ip.ki.wVk = VK_CONTROL;
-		ip.ki.dwFlags = 0; // 0 for key press
-		SendInput(1, &ip, sizeof(INPUT));
-
-		ip.ki.wVk = VK_F9;
-		ip.ki.dwFlags = 0; // 0 for key press
-		SendInput(1, &ip, sizeof(INPUT));
-
-		// Release the "V" key
-		ip.ki.wVk = VK_F9;
-		ip.ki.dwFlags = KEYEVENTF_KEYUP;
-		SendInput(1, &ip, sizeof(INPUT));
-
-		// Release the "Ctrl" key
 		ip.ki.wVk = VK_CONTROL;
 		ip.ki.dwFlags = KEYEVENTF_KEYUP;
 		SendInput(1, &ip, sizeof(INPUT));
